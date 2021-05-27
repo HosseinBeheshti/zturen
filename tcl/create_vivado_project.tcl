@@ -141,7 +141,6 @@ set obj [get_filesets sources_1]
 # Set 'sources_1' fileset properties
 # set obj [get_filesets sources_1]
 # set_property -name "top" -value "design_1_wrapper" -objects $obj
-# set_property -name "top_auto_set" -value "0" -objects $obj
 # H128B717------------------------------------------------------------------------
 
 # Create 'constrs_1' fileset (if not found)
@@ -209,7 +208,6 @@ proc cr_bd_design_1 { parentCell } {
   set bCheckIPs 1
   if { $bCheckIPs == 1 } {
      set list_check_ips "\ 
-  xilinx.com:ip:xlslice:1.0\
   xilinx.com:ip:processing_system7:5.5\
   "
 
@@ -267,32 +265,8 @@ proc cr_bd_design_1 { parentCell } {
 
   set FIXED_IO [ create_bd_intf_port -mode Master -vlnv xilinx.com:display_processing_system7:fixedio_rtl:1.0 FIXED_IO ]
 
-  set GPIO_0 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 GPIO_0 ]
-
-  set IIC_0 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 IIC_0 ]
-
 
   # Create ports
-  set BP [ create_bd_port -dir O -from 0 -to 0 BP ]
-  set LEDS [ create_bd_port -dir O -from 2 -to 0 LEDS ]
-  set SW [ create_bd_port -dir I -from 3 -to 0 SW ]
-
-  # Create instance: bp_slice, and set properties
-  set bp_slice [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 bp_slice ]
-  set_property -dict [ list \
-   CONFIG.DIN_FROM {3} \
-   CONFIG.DIN_TO {3} \
-   CONFIG.DIN_WIDTH {4} \
-   CONFIG.DOUT_WIDTH {1} \
- ] $bp_slice
-
-  # Create instance: led_slice, and set properties
-  set led_slice [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 led_slice ]
-  set_property -dict [ list \
-   CONFIG.DIN_FROM {2} \
-   CONFIG.DIN_WIDTH {4} \
-   CONFIG.DOUT_WIDTH {3} \
- ] $led_slice
 
   # Create instance: processing_system7_0, and set properties
   set processing_system7_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0 ]
@@ -1195,43 +1169,26 @@ proc cr_bd_design_1 { parentCell } {
   # Create interface connections
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins processing_system7_0/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
-  connect_bd_intf_net -intf_net processing_system7_0_GPIO_0 [get_bd_intf_ports GPIO_0] [get_bd_intf_pins processing_system7_0/GPIO_0]
-  connect_bd_intf_net -intf_net processing_system7_0_IIC_0 [get_bd_intf_ports IIC_0] [get_bd_intf_pins processing_system7_0/IIC_0]
 
   # Create port connections
-  connect_bd_net -net SW_1 [get_bd_ports SW] [get_bd_pins bp_slice/Din] [get_bd_pins led_slice/Din]
-  connect_bd_net -net led_slice1_Dout [get_bd_ports BP] [get_bd_pins bp_slice/Dout]
-  connect_bd_net -net xlslice_0_Dout [get_bd_ports LEDS] [get_bd_pins led_slice/Dout]
 
   # Create address segments
 
   # Perform GUI Layout
   regenerate_bd_layout -layout_string {
    "ActiveEmotionalView":"Default View",
-   "Default View_ScaleFactor":"0.908929",
-   "Default View_TopLeft":"-429,1",
+   "Default View_ScaleFactor":"1.0",
+   "Default View_TopLeft":"-323,-84",
    "ExpandedHierarchyInLayout":"",
    "guistr":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
 #  -string -flagsOSRD
 preplace port DDR -pg 1 -lvl 2 -x 360 -y 80 -defaultsOSRD
 preplace port FIXED_IO -pg 1 -lvl 2 -x 360 -y 100 -defaultsOSRD
-preplace port GPIO_0 -pg 1 -lvl 2 -x 360 -y 60 -defaultsOSRD
-preplace port IIC_0 -pg 1 -lvl 2 -x 360 -y 120 -defaultsOSRD
-preplace port BP -pg 1 -lvl 2 -x 360 -y 390 -defaultsOSRD
-preplace portBus SW -pg 1 -lvl 0 -x 0 -y 390 -defaultsOSRD
-preplace portBus LEDS -pg 1 -lvl 2 -x 360 -y 500 -defaultsOSRD
 preplace inst processing_system7_0 -pg 1 -lvl 1 -x 180 -y 170 -defaultsOSRD
-preplace inst led_slice -pg 1 -lvl 1 -x 180 -y 500 -defaultsOSRD
-preplace inst bp_slice -pg 1 -lvl 1 -x 180 -y 390 -defaultsOSRD -resize 160 88
-preplace netloc xlslice_0_Dout 1 1 1 NJ 500
-preplace netloc SW_1 1 0 1 20 390n
-preplace netloc led_slice1_Dout 1 1 1 NJ 390
-preplace netloc processing_system7_0_FIXED_IO 1 1 1 NJ 100
-preplace netloc processing_system7_0_IIC_0 1 1 1 NJ 120
-preplace netloc processing_system7_0_GPIO_0 1 1 1 NJ 60
 preplace netloc processing_system7_0_DDR 1 1 1 NJ 80
+preplace netloc processing_system7_0_FIXED_IO 1 1 1 NJ 100
 levelinfo -pg 1 0 180 360
-pagesize -pg 1 -db -bbox -sgen -110 0 480 560
+pagesize -pg 1 -db -bbox -sgen 0 0 480 680
 "
 }
 
@@ -1287,6 +1244,7 @@ if { $obj != "" } {
 
 }
 set obj [get_runs synth_1]
+set_property -name "needs_refresh" -value "1" -objects $obj
 set_property -name "part" -value "xc7z020clg400-1" -objects $obj
 set_property -name "strategy" -value "Vivado Synthesis Defaults" -objects $obj
 
