@@ -122,7 +122,6 @@ set_property -name "webtalk.modelsim_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.questa_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.riviera_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.vcs_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.xcelium_export_sim" -value "1" -objects $obj
 set_property -name "webtalk.xsim_export_sim" -value "1" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
@@ -179,7 +178,6 @@ set obj [get_filesets sim_1]
 # set obj [get_filesets sim_1]
 # set_property -name "hbs.configure_design_for_hier_access" -value "1" -objects $obj
 # set_property -name "top" -value "design_1_wrapper" -objects $obj
-# set_property -name "top_auto_set" -value "0" -objects $obj
 # set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 # H128B717------------------------------------------------------------------------
 
@@ -211,9 +209,8 @@ proc cr_bd_design_1 { parentCell } {
   set bCheckIPs 1
   if { $bCheckIPs == 1 } {
      set list_check_ips "\ 
+  xilinx.com:ip:xlslice:1.0\
   xilinx.com:ip:processing_system7:5.5\
-  xilinx.com:ip:util_vector_logic:2.0\
-  xilinx.com:ip:xlconcat:2.1\
   "
 
    set list_ips_missing ""
@@ -276,8 +273,26 @@ proc cr_bd_design_1 { parentCell } {
 
 
   # Create ports
-  set hdmi_intn [ create_bd_port -dir I -from 0 -to 0 hdmi_intn ]
-  set mems_intn [ create_bd_port -dir I -from 0 -to 0 mems_intn ]
+  set BP [ create_bd_port -dir O -from 0 -to 0 BP ]
+  set LEDS [ create_bd_port -dir O -from 2 -to 0 LEDS ]
+  set SW [ create_bd_port -dir I -from 3 -to 0 SW ]
+
+  # Create instance: bp_slice, and set properties
+  set bp_slice [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 bp_slice ]
+  set_property -dict [ list \
+   CONFIG.DIN_FROM {3} \
+   CONFIG.DIN_TO {3} \
+   CONFIG.DIN_WIDTH {4} \
+   CONFIG.DOUT_WIDTH {1} \
+ ] $bp_slice
+
+  # Create instance: led_slice, and set properties
+  set led_slice [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 led_slice ]
+  set_property -dict [ list \
+   CONFIG.DIN_FROM {2} \
+   CONFIG.DIN_WIDTH {4} \
+   CONFIG.DOUT_WIDTH {3} \
+ ] $led_slice
 
   # Create instance: processing_system7_0, and set properties
   set processing_system7_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0 ]
@@ -289,9 +304,9 @@ proc cr_bd_design_1 { parentCell } {
    CONFIG.PCW_ACT_DCI_PERIPHERAL_FREQMHZ {10.158730} \
    CONFIG.PCW_ACT_ENET0_PERIPHERAL_FREQMHZ {125.000000} \
    CONFIG.PCW_ACT_ENET1_PERIPHERAL_FREQMHZ {10.000000} \
-   CONFIG.PCW_ACT_FPGA0_PERIPHERAL_FREQMHZ {100.000000} \
-   CONFIG.PCW_ACT_FPGA1_PERIPHERAL_FREQMHZ {50.000000} \
-   CONFIG.PCW_ACT_FPGA2_PERIPHERAL_FREQMHZ {10.000000} \
+   CONFIG.PCW_ACT_FPGA0_PERIPHERAL_FREQMHZ {50.000000} \
+   CONFIG.PCW_ACT_FPGA1_PERIPHERAL_FREQMHZ {100.000000} \
+   CONFIG.PCW_ACT_FPGA2_PERIPHERAL_FREQMHZ {142.857132} \
    CONFIG.PCW_ACT_FPGA3_PERIPHERAL_FREQMHZ {10.000000} \
    CONFIG.PCW_ACT_I2C_PERIPHERAL_FREQMHZ {50} \
    CONFIG.PCW_ACT_PCAP_PERIPHERAL_FREQMHZ {200.000000} \
@@ -335,9 +350,9 @@ proc cr_bd_design_1 { parentCell } {
    CONFIG.PCW_CAN_PERIPHERAL_DIVISOR1 {2} \
    CONFIG.PCW_CAN_PERIPHERAL_FREQMHZ {100} \
    CONFIG.PCW_CAN_PERIPHERAL_VALID {1} \
-   CONFIG.PCW_CLK0_FREQ {100000000} \
-   CONFIG.PCW_CLK1_FREQ {50000000} \
-   CONFIG.PCW_CLK2_FREQ {10000000} \
+   CONFIG.PCW_CLK0_FREQ {50000000} \
+   CONFIG.PCW_CLK1_FREQ {100000000} \
+   CONFIG.PCW_CLK2_FREQ {142857132} \
    CONFIG.PCW_CLK3_FREQ {10000000} \
    CONFIG.PCW_CORE0_FIQ_INTR {0} \
    CONFIG.PCW_CORE0_IRQ_INTR {0} \
@@ -409,7 +424,7 @@ proc cr_bd_design_1 { parentCell } {
    CONFIG.PCW_EN_CAN1 {0} \
    CONFIG.PCW_EN_CLK0_PORT {1} \
    CONFIG.PCW_EN_CLK1_PORT {1} \
-   CONFIG.PCW_EN_CLK2_PORT {0} \
+   CONFIG.PCW_EN_CLK2_PORT {1} \
    CONFIG.PCW_EN_CLK3_PORT {0} \
    CONFIG.PCW_EN_CLKTRIG0_PORT {0} \
    CONFIG.PCW_EN_CLKTRIG1_PORT {0} \
@@ -471,27 +486,27 @@ proc cr_bd_design_1 { parentCell } {
    CONFIG.PCW_EN_WDT {0} \
    CONFIG.PCW_FCLK0_PERIPHERAL_CLKSRC {IO PLL} \
    CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR0 {5} \
-   CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR1 {2} \
+   CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR1 {4} \
    CONFIG.PCW_FCLK1_PERIPHERAL_CLKSRC {IO PLL} \
    CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR0 {5} \
-   CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR1 {4} \
+   CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR1 {2} \
    CONFIG.PCW_FCLK2_PERIPHERAL_CLKSRC {IO PLL} \
-   CONFIG.PCW_FCLK2_PERIPHERAL_DIVISOR0 {1} \
+   CONFIG.PCW_FCLK2_PERIPHERAL_DIVISOR0 {7} \
    CONFIG.PCW_FCLK2_PERIPHERAL_DIVISOR1 {1} \
    CONFIG.PCW_FCLK3_PERIPHERAL_CLKSRC {IO PLL} \
    CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR0 {1} \
    CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR1 {1} \
    CONFIG.PCW_FCLK_CLK0_BUF {TRUE} \
    CONFIG.PCW_FCLK_CLK1_BUF {TRUE} \
-   CONFIG.PCW_FCLK_CLK2_BUF {FALSE} \
+   CONFIG.PCW_FCLK_CLK2_BUF {TRUE} \
    CONFIG.PCW_FCLK_CLK3_BUF {FALSE} \
-   CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {100} \
-   CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {50} \
-   CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {50} \
+   CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {50} \
+   CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {100} \
+   CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {150} \
    CONFIG.PCW_FPGA3_PERIPHERAL_FREQMHZ {50} \
    CONFIG.PCW_FPGA_FCLK0_ENABLE {1} \
    CONFIG.PCW_FPGA_FCLK1_ENABLE {1} \
-   CONFIG.PCW_FPGA_FCLK2_ENABLE {0} \
+   CONFIG.PCW_FPGA_FCLK2_ENABLE {1} \
    CONFIG.PCW_FPGA_FCLK3_ENABLE {0} \
    CONFIG.PCW_FTM_CTI_IN0 {<Select>} \
    CONFIG.PCW_FTM_CTI_IN1 {<Select>} \
@@ -540,7 +555,7 @@ proc cr_bd_design_1 { parentCell } {
    CONFIG.PCW_INCLUDE_TRACE_BUFFER {0} \
    CONFIG.PCW_IOPLL_CTRL_FBDIV {30} \
    CONFIG.PCW_IO_IO_PLL_FREQMHZ {1000.000} \
-   CONFIG.PCW_IRQ_F2P_INTR {1} \
+   CONFIG.PCW_IRQ_F2P_INTR {0} \
    CONFIG.PCW_IRQ_F2P_MODE {DIRECT} \
    CONFIG.PCW_MIO_0_DIRECTION {inout} \
    CONFIG.PCW_MIO_0_IOTYPE {LVCMOS 3.3V} \
@@ -1177,28 +1192,6 @@ proc cr_bd_design_1 { parentCell } {
    CONFIG.PCW_WDT_WDT_IO {<Select>} \
  ] $processing_system7_0
 
-  # Create instance: util_vector_logic_0, and set properties
-  set util_vector_logic_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_vector_logic:2.0 util_vector_logic_0 ]
-  set_property -dict [ list \
-   CONFIG.C_OPERATION {not} \
-   CONFIG.C_SIZE {1} \
-   CONFIG.LOGO_FILE {data/sym_notgate.png} \
- ] $util_vector_logic_0
-
-  # Create instance: util_vector_logic_1, and set properties
-  set util_vector_logic_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_vector_logic:2.0 util_vector_logic_1 ]
-  set_property -dict [ list \
-   CONFIG.C_OPERATION {not} \
-   CONFIG.C_SIZE {1} \
-   CONFIG.LOGO_FILE {data/sym_notgate.png} \
- ] $util_vector_logic_1
-
-  # Create instance: xlconcat_0, and set properties
-  set xlconcat_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_0 ]
-  set_property -dict [ list \
-   CONFIG.NUM_PORTS {4} \
- ] $xlconcat_0
-
   # Create interface connections
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins processing_system7_0/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
@@ -1206,43 +1199,39 @@ proc cr_bd_design_1 { parentCell } {
   connect_bd_intf_net -intf_net processing_system7_0_IIC_0 [get_bd_intf_ports IIC_0] [get_bd_intf_pins processing_system7_0/IIC_0]
 
   # Create port connections
-  connect_bd_net -net Op1_1 [get_bd_ports hdmi_intn] [get_bd_pins util_vector_logic_0/Op1]
-  connect_bd_net -net Op1_1_1 [get_bd_ports mems_intn] [get_bd_pins util_vector_logic_1/Op1]
-  connect_bd_net -net util_vector_logic_0_Res [get_bd_pins util_vector_logic_0/Res] [get_bd_pins xlconcat_0/In0]
-  connect_bd_net -net util_vector_logic_1_Res [get_bd_pins util_vector_logic_1/Res] [get_bd_pins xlconcat_0/In2]
-  connect_bd_net -net xlconcat_0_dout [get_bd_pins processing_system7_0/IRQ_F2P] [get_bd_pins xlconcat_0/dout]
+  connect_bd_net -net SW_1 [get_bd_ports SW] [get_bd_pins bp_slice/Din] [get_bd_pins led_slice/Din]
+  connect_bd_net -net led_slice1_Dout [get_bd_ports BP] [get_bd_pins bp_slice/Dout]
+  connect_bd_net -net xlslice_0_Dout [get_bd_ports LEDS] [get_bd_pins led_slice/Dout]
 
   # Create address segments
 
   # Perform GUI Layout
   regenerate_bd_layout -layout_string {
    "ActiveEmotionalView":"Default View",
-   "Default View_ScaleFactor":"0.91354",
-   "Default View_TopLeft":"-162,-118",
+   "Default View_ScaleFactor":"0.908929",
+   "Default View_TopLeft":"-429,1",
    "ExpandedHierarchyInLayout":"",
    "guistr":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
 #  -string -flagsOSRD
-preplace port DDR -pg 1 -lvl 4 -x 950 -y 80 -defaultsOSRD
-preplace port FIXED_IO -pg 1 -lvl 4 -x 950 -y 100 -defaultsOSRD
-preplace port GPIO_0 -pg 1 -lvl 4 -x 950 -y 60 -defaultsOSRD
-preplace port IIC_0 -pg 1 -lvl 4 -x 950 -y 120 -defaultsOSRD
-preplace portBus hdmi_intn -pg 1 -lvl 0 -x 0 -y 70 -defaultsOSRD
-preplace portBus mems_intn -pg 1 -lvl 0 -x 0 -y 170 -defaultsOSRD
-preplace inst processing_system7_0 -pg 1 -lvl 3 -x 730 -y 160 -defaultsOSRD
-preplace inst util_vector_logic_0 -pg 1 -lvl 1 -x 170 -y 70 -defaultsOSRD
-preplace inst util_vector_logic_1 -pg 1 -lvl 1 -x 170 -y 170 -defaultsOSRD
-preplace inst xlconcat_0 -pg 1 -lvl 2 -x 420 -y 160 -defaultsOSRD
-preplace netloc Op1_1 1 0 1 NJ 70
-preplace netloc Op1_1_1 1 0 1 NJ 170
-preplace netloc util_vector_logic_0_Res 1 1 1 320J 70n
-preplace netloc util_vector_logic_1_Res 1 1 1 NJ 170
-preplace netloc xlconcat_0_dout 1 2 1 N 160
-preplace netloc processing_system7_0_DDR 1 3 1 NJ 80
-preplace netloc processing_system7_0_FIXED_IO 1 3 1 NJ 100
-preplace netloc processing_system7_0_GPIO_0 1 3 1 NJ 60
-preplace netloc processing_system7_0_IIC_0 1 3 1 NJ 120
-levelinfo -pg 1 0 170 420 730 950
-pagesize -pg 1 -db -bbox -sgen -170 0 1070 320
+preplace port DDR -pg 1 -lvl 2 -x 360 -y 80 -defaultsOSRD
+preplace port FIXED_IO -pg 1 -lvl 2 -x 360 -y 100 -defaultsOSRD
+preplace port GPIO_0 -pg 1 -lvl 2 -x 360 -y 60 -defaultsOSRD
+preplace port IIC_0 -pg 1 -lvl 2 -x 360 -y 120 -defaultsOSRD
+preplace port BP -pg 1 -lvl 2 -x 360 -y 390 -defaultsOSRD
+preplace portBus SW -pg 1 -lvl 0 -x 0 -y 390 -defaultsOSRD
+preplace portBus LEDS -pg 1 -lvl 2 -x 360 -y 500 -defaultsOSRD
+preplace inst processing_system7_0 -pg 1 -lvl 1 -x 180 -y 170 -defaultsOSRD
+preplace inst led_slice -pg 1 -lvl 1 -x 180 -y 500 -defaultsOSRD
+preplace inst bp_slice -pg 1 -lvl 1 -x 180 -y 390 -defaultsOSRD -resize 160 88
+preplace netloc xlslice_0_Dout 1 1 1 NJ 500
+preplace netloc SW_1 1 0 1 20 390n
+preplace netloc led_slice1_Dout 1 1 1 NJ 390
+preplace netloc processing_system7_0_FIXED_IO 1 1 1 NJ 100
+preplace netloc processing_system7_0_IIC_0 1 1 1 NJ 120
+preplace netloc processing_system7_0_GPIO_0 1 1 1 NJ 60
+preplace netloc processing_system7_0_DDR 1 1 1 NJ 80
+levelinfo -pg 1 0 180 360
+pagesize -pg 1 -db -bbox -sgen -110 0 480 560
 "
 }
 
