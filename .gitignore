@@ -1,11 +1,16 @@
 build/*
+NA/*
 artifacts/*
+**/netlist
 log_data/*
 qt/sdk/*
 qt/build*
 **/slprj
 vivado*.jou
 vivado*.log
+**/*sysgen*.log
+**/*SysgenFeature*.htm
+**/.lpr
 vivado*.str
 *runtime.txt
 *.slxc
