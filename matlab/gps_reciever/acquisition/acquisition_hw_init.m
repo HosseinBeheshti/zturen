@@ -29,6 +29,7 @@ fft_convert_point = 7;
 DDS_phase_width = 24;
 DDS_signal_width = 8;
 fc = 1.25e6;
+fd = 500;
 f_dds_change = 500;
 DDS_offset = (fc)/fs;
 DDS_pinc =(f_dds_change)/fs;
@@ -43,8 +44,8 @@ for i=1:37
     g0 = cacode(i,Ns/1e3/1.023);
     code_g = g0*2-1;
     g = conj(fft(code_g,fft_length));
-    g_i = fi_bit(real(g),ca_fft_width);
-    g_q = fi_bit(imag(g),ca_fft_width);
+    g_i = double(fi(real(g),1,ca_fft_width,ca_fft_point));
+    g_q = double(fi(imag(g),1,ca_fft_width,ca_fft_point));
     ca_fft_coef(i,:) = (g_i)+(2^ca_fft_width*g_q);
 end
 %% correlatoin and peak detector
@@ -59,4 +60,10 @@ abs_multiplier_width = 8;
 abs_multiplier_point = 7;
 abs_adder_width = 8;
 abs_adder_point = 7;
+%% debugger data generator
+% acquisition_debugger_data(fs,fc,fd,x,sat_num)
+[sim_final_output,sim_dds_output,sim_ddc_out,sim_fft_out,sim_ifft_out,sim_g] = acquisition_debugger_data(4.096e6,0,-2500,x,30);
+
+
+
 
