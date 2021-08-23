@@ -1,17 +1,14 @@
 close all;
 clc;
 clear;
-simulation_time = 20e-3;
+%%
+simulation_time = 2e-3;
 %% load log data
 load_data_en = 1;
 if load_data_en == 1
     fid=fopen('../../../log_data/BladeRF_Bands-L1.int16');
     x=fread(fid,2e5,'int16');
     fclose(fid);
-elseif load_data_en == 2
-        load ../emulator/emulated_GPS_IF% 20 ms data with fs = 5MHz
-else
-    x = ones(2e5,1);
 end
 %% data capture
 fs_adc = 5e6;

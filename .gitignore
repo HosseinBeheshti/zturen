@@ -15,3 +15,4 @@ vivado*.str
 *runtime.txt
 *.slxc
 *.asv
+*.autosave
