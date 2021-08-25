@@ -10,6 +10,12 @@ if load_data_en == 1
     x=fread(fid,2e5,'int16');
     fclose(fid);
 end
+%% prepare input signal
+sim_imp_clk_ratio = 5000/4096;
+x1=[1 1j]*buffer(x,2);
+x11 = real(x1(1:2:end));% downsample to 5Mhz
+x0 = x11(1:sim_imp_clk_ratio:end);% downsample to 4096 point for 1 ms
+x_in = round(x0*2^-8); % 3 bit data
 %% data capture
 fs_adc = 5e6;
 ts_adc = 1/fs_adc;
@@ -19,20 +25,21 @@ fs = core_upsample_ratio*fs_adc;
 ts = 1/fs;
 Ns=fs*1e-3; % data pt in 1 ms
 input_signal_width = 3;
-input_signal_binary_point = 2;
-quantized_input = double(fi(x.*2^(input_signal_binary_point-1),1,input_signal_width,input_signal_binary_point))';
-input_signal = [0:ts_adc:ts_adc*(length(x)-1); quantized_input]';
+input_signal_binary_point = 0;
+quantized_input = double(fi(x_in.*2^(input_signal_binary_point-1),1,input_signal_width,input_signal_binary_point))';
+input_signal = [0:ts_adc:ts_adc*(length(quantized_input)-1); quantized_input']';
+%% FFT param
 fft_length = 4096;
 fft_scale = -log2(fft_length);
 fft_convert_width = 8;
 fft_convert_point = 7;
+%% DDC param
 DDS_phase_width = 24;
-DDS_signal_width = 8;
-fc = 1.25e6;
-fd = 500;
+DDS_signal_width = 12;
+f_start = -20e3;
 f_dds_change = 500;
-DDS_offset = (fc)/fs;
-DDS_pinc =(f_dds_change)/fs;
+f_start_phase = f_start/fs;
+fd_phase_increment =(f_dds_change)/fs;
 adc_to_fft_latency = 18;
 multiplier_width = 8;
 multiplier_point = multiplier_width - 1;
@@ -62,7 +69,7 @@ abs_adder_width = 8;
 abs_adder_point = 7;
 %% debugger data generator
 % acquisition_debugger_data(fs,fc,fd,x,sat_num)
-[sim_final_output,sim_dds_output,sim_ddc_out,sim_fft_out,sim_ifft_out,sim_g] = acquisition_debugger_data(4.096e6,0,-2500,x,30);
+[sim_final_output,sim_dds_output,sim_ddc_out,sim_fft_out,sim_ifft_out,sim_g] = acquisition_debugger_data(4.096e6,0,-2500,x_in,30);
 
 
 
