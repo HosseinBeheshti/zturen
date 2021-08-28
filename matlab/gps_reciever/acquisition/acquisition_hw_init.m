@@ -36,8 +36,8 @@ fft_convert_point = 7;
 %% DDC param
 DDS_phase_width = 24;
 DDS_signal_width = 12;
-f_start = -20e3;
-f_dds_change = 500;
+f_start = -3e3;
+f_dds_change = 100;
 f_start_phase = f_start/fs;
 fd_phase_increment =(f_dds_change)/fs;
 adc_to_fft_latency = 18;
