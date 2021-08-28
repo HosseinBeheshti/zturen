@@ -27,6 +27,7 @@ Ns=fs*1e-3; % data pt in 1 ms
 input_signal_width = 3;
 input_signal_binary_point = 0;
 quantized_input = double(fi(x_in.*2^(input_signal_binary_point-1),1,input_signal_width,input_signal_binary_point))';
+adc_ram_init = quantized_input(1:4096);
 input_signal = [0:ts_adc:ts_adc*(length(quantized_input)-1); quantized_input']';
 %% FFT param
 fft_length = 4096;
@@ -36,10 +37,10 @@ fft_convert_point = 7;
 %% DDC param
 DDS_phase_width = 24;
 DDS_signal_width = 12;
-f_start = -3e3;
+f_start = -2500*sim_imp_clk_ratio;
 f_dds_change = 100;
-f_start_phase = f_start/fs;
-fd_phase_increment =(f_dds_change)/fs;
+f_start_phase = core_upsample_ratio*f_start/fs;
+fd_phase_increment = core_upsample_ratio*(f_dds_change)/fs;
 adc_to_fft_latency = 18;
 multiplier_width = 8;
 multiplier_point = multiplier_width - 1;
@@ -69,8 +70,18 @@ abs_adder_width = 8;
 abs_adder_point = 7;
 %% debugger data generator
 % acquisition_debugger_data(fs,fc,fd,x,sat_num)
-[sim_final_output,sim_dds_output,sim_ddc_out,sim_fft_out,sim_ifft_out,sim_g] = acquisition_debugger_data(4.096e6,0,-2500,x_in,30);
+[sim_final_output,sim_dds_output,sim_ddc_out,sim_fft_out,sim_ifft_out,sim_g] = acquisition_debugger_data(4.096e6,0,-2500,adc_ram_init',30);
 
-
+a = imag(sim_dds_output)';
+start_index = 13;
+b = out.simout.signals.values(start_index:start_index+4095);
+c = diff(a-b);
+clc;
+close all;
+hold on;
+plot(a);
+plot(b);
+disp(abs(max(c)));
+hold off;
 
 
