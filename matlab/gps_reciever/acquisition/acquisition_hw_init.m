@@ -42,7 +42,6 @@ f_start = -2500*sim_imp_clk_ratio;
 f_dds_change = 100;
 f_start_phase = core_upsample_ratio*f_start/fs;
 fd_phase_increment = core_upsample_ratio*(f_dds_change)/fs;
-adc_to_fft_latency = 18;
 multiplier_width = 8;
 multiplier_point = multiplier_width - 1;
 %% CA code
@@ -69,6 +68,11 @@ abs_multiplier_width = 8;
 abs_multiplier_point = 7;
 abs_adder_width = 8;
 abs_adder_point = 7;
+%% syncronization latency
+adc_addr_gen_latency = 3;
+ddc_latency = 5;
+ca_code_latency = 3;
+correlator_latency = 19;
 %% debugger data generator
 % acquisition_debugger_data(fs,fc,fd,x,sat_num)
 [sim_final_output,sim_dds_output,sim_ddc_out,sim_fft_out,sim_ifft_out,sim_g] = acquisition_debugger_data(4.096e6,0,-2500,adc_ram_init',30);
