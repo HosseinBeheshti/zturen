@@ -4,11 +4,12 @@ clear;
 %%
 simulation_time = 2e-3;
 %% load log data
-load_data_en = 1;
-if load_data_en == 1
+if exist('../../../log_data/BladeRF_Bands-L1.int16.simout','file') == 1
     fid=fopen('../../../log_data/BladeRF_Bands-L1.int16');
     x=fread(fid,2e5,'int16');
     fclose(fid);
+else
+    x = zeros(1,1e6);
 end
 %% prepare input signal
 sim_imp_clk_ratio = 5000/4096;
@@ -71,17 +72,19 @@ abs_adder_point = 7;
 %% debugger data generator
 % acquisition_debugger_data(fs,fc,fd,x,sat_num)
 [sim_final_output,sim_dds_output,sim_ddc_out,sim_fft_out,sim_ifft_out,sim_g] = acquisition_debugger_data(4.096e6,0,-2500,adc_ram_init',30);
+if exist('out.simout','var') == 1
+    a = imag(sim_dds_output)';
+    start_index = 13;
+    b = out.simout.signals.values(start_index:start_index+4095);
+    c = diff(a-b);
+    clc;
+    close all;
+    hold on;
+    plot(a);
+    plot(b);
+    disp(abs(max(c)));
+    hold off;
+end
 
-a = imag(sim_dds_output)';
-start_index = 13;
-b = out.simout.signals.values(start_index:start_index+4095);
-c = diff(a-b);
-clc;
-close all;
-hold on;
-plot(a);
-plot(b);
-disp(abs(max(c)));
-hold off;
 
 
