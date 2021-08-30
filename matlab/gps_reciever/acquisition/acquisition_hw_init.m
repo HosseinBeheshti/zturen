@@ -54,13 +54,13 @@ for i=1:37
     ca_fft_coef(i,:) = bitconcat(g_i,g_q);
 end
 %% correlatoin and peak detector
-cm_width = 16;
-cm_scale = 0;
-cm_convert_width = 8;
-cm_convert_point = 7;
+cm_width = 32;
+cm_scale = -13;
+cm_convert_width = 16;
+cm_convert_point = 15;
 ifft_scale = 0;
-ifft_convert_width = 10;
-ifft_convert_point = 7;
+ifft_convert_width = 29;
+ifft_convert_point = 15;
 abs_multiplier_width = 8;
 abs_multiplier_point = 7;
 abs_adder_width = 8;
@@ -74,9 +74,10 @@ correlator_latency = 19;
 % acquisition_debugger_data(fs,fc,fd,x,sat_num)
 [sim_final_output,sim_dds_output,sim_ddc_out,sim_fft_out,sim_cm_out,sim_ifft_out,sim_g] = acquisition_debugger_data(4.096e6,0,-2500,adc_ram_init',30);
 if exist('out','var') == 1
-    a = real(sim_cm_out)';
-    start_index = 12470;
+    a = real(sim_fft_out)'./4096*4;
     b_temp = out.simout.signals.values;
+    b_index = find(out.simout_index.signals.values~= 0);
+    start_index = b_index(1);
     b = b_temp(start_index:start_index+4095);
     c = diff(a-b);
     clc;
