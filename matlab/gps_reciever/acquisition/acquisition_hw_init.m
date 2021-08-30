@@ -3,14 +3,11 @@ clc;
 clear;
 %%
 simulation_time = 2e-3;
+scope_span = 1e-5;
 %% load log data
-if exist('../../../log_data/BladeRF_Bands-L1.int16.simout','file') == 1
-    fid=fopen('../../../log_data/BladeRF_Bands-L1.int16');
-    x=fread(fid,2e5,'int16');
-    fclose(fid);
-else
-    x = zeros(1,1e6);
-end
+fid = fopen('../../../log_data/BladeRF_Bands-L1.int16');
+x = fread(fid,2e5,'int16');
+fclose(fid);
 %% prepare input signal
 sim_imp_clk_ratio = 5000/4096;
 x1=[1 1j]*buffer(x,2);
@@ -33,8 +30,8 @@ input_signal = [0:ts_adc:ts_adc*(length(quantized_input)-1); quantized_input']';
 %% FFT param
 fft_length = 4096;
 fft_scale = -log2(fft_length);
-fft_convert_width = 8;
-fft_convert_point = 7;
+fft_convert_width = 21;
+fft_convert_point = 19;
 %% DDC param
 DDS_phase_width = 24;
 DDS_signal_width = 12;
@@ -45,16 +42,16 @@ fd_phase_increment = core_upsample_ratio*(f_dds_change)/fs;
 multiplier_width = 8;
 multiplier_point = multiplier_width - 1;
 %% CA code
-ca_fft_width = 8;
-ca_fft_point = 7;
+ca_fft_width = 10;
+ca_fft_point = 0;
 ca_fft_coef = zeros(37,4096);
 for i=1:37
-    g0 = cacode(i,Ns/1e3/1.023);
+    g0 = cacode(i,(4.096e6*1e-3)/1023);
     code_g = g0*2-1;
     g = conj(fft(code_g,fft_length));
-    g_i = double(fi(real(g),1,ca_fft_width,ca_fft_point));
-    g_q = double(fi(imag(g),1,ca_fft_width,ca_fft_point));
-    ca_fft_coef(i,:) = (g_i)+(2^ca_fft_width*g_q);
+    g_i = fi(real(g),1,ca_fft_width,ca_fft_point);
+    g_q = fi(imag(g),1,ca_fft_width,ca_fft_point);
+    ca_fft_coef(i,:) = bitconcat(g_i,g_q);
 end
 %% correlatoin and peak detector
 cm_width = 16;
@@ -75,18 +72,28 @@ ca_code_latency = 3;
 correlator_latency = 19;
 %% debugger data generator
 % acquisition_debugger_data(fs,fc,fd,x,sat_num)
-[sim_final_output,sim_dds_output,sim_ddc_out,sim_fft_out,sim_ifft_out,sim_g] = acquisition_debugger_data(4.096e6,0,-2500,adc_ram_init',30);
-if exist('out.simout','var') == 1
-    a = imag(sim_dds_output)';
-    start_index = 13;
-    b = out.simout.signals.values(start_index:start_index+4095);
+[sim_final_output,sim_dds_output,sim_ddc_out,sim_fft_out,sim_cm_out,sim_ifft_out,sim_g] = acquisition_debugger_data(4.096e6,0,-2500,adc_ram_init',30);
+if exist('out','var') == 1
+    a = real(sim_cm_out)';
+    start_index = 12470;
+    b_temp = out.simout.signals.values;
+    b = b_temp(start_index:start_index+4095);
     c = diff(a-b);
     clc;
     close all;
     hold on;
     plot(a);
     plot(b);
-    disp(abs(max(c)));
+    max_index = find(abs(c) == abs(max(c)));
+    if (c(max_index) >= 0)
+        max_error = max(abs(c(max_index)/a(max_index)));
+        disp("A");
+    else
+        max_error = max(abs(c(max_index)/b(max_index)));
+        disp("B");
+    end
+    X = sprintf('max_error is %f percent.',max_error*100);
+    disp(X)
     hold off;
 end
 
