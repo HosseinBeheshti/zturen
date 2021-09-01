@@ -4,7 +4,7 @@ clear;
 %%
 simulation_time = 2e-3;
 %% load log data
-if exist('../../../log_data/BladeRF_Bands-L1.int16.simout','file') == 1
+if isfile('../../../log_data/BladeRF_Bands-L1.int16.md')
     fid=fopen('../../../log_data/BladeRF_Bands-L1.int16');
     x=fread(fid,2e5,'int16');
     fclose(fid);
