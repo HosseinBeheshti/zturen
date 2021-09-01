@@ -66,8 +66,8 @@ cm_convert_point = 15;
 ifft_scale = 0;
 ifft_convert_width = 29;
 ifft_convert_point = 15;
-abs_multiplier_width = 8;
-abs_multiplier_point = 7;
+abs_multiplier_width = 16;
+abs_multiplier_point = 15;
 abs_adder_width = 8;
 abs_adder_point = 7;
 %% syncronization latency
@@ -76,11 +76,10 @@ ddc_latency = 5;
 ca_code_latency = 3;
 correlator_latency = 19;
 %% debugger data generator
-fixed_point_bits.fft_convert_width = fft_convert_width;
-fixed_point_bits.fft_convert_point = fft_convert_point;
-fixed_point_bits.DDS_phase_width = DDS_phase_width;
 fixed_point_bits.DDS_signal_width = DDS_signal_width;
 fixed_point_bits.DDS_signal_point = DDS_signal_point;
+fixed_point_bits.fft_convert_width = fft_convert_width;
+fixed_point_bits.fft_convert_point = fft_convert_point;
 fixed_point_bits.multiplier_width = multiplier_width;
 fixed_point_bits.multiplier_point = multiplier_point;
 fixed_point_bits.ca_fft_width = ca_fft_width;
