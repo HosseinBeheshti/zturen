@@ -10,7 +10,7 @@ if isfile('../../../log_data/BladeRF_Bands-L1.int16.md')
     x=fread(fid,2e5,'int16');
     fclose(fid);
 else
-    x = zeros(1,1e6);
+    x = 2^16.*randn(1,1e6);
 end
 %% prepare input signal
 sim_imp_clk_ratio = 5000/4096;
@@ -39,6 +39,7 @@ fft_convert_point = 19;
 %% DDC param
 DDS_phase_width = 24;
 DDS_signal_width = 12;
+DDS_signal_point = 11;
 f_start = -2500*sim_imp_clk_ratio;
 f_dds_change = 100;
 f_start_phase = core_upsample_ratio*f_start/fs;
@@ -75,8 +76,24 @@ ddc_latency = 5;
 ca_code_latency = 3;
 correlator_latency = 19;
 %% debugger data generator
+fixed_point_bits.fft_convert_width = fft_convert_width;
+fixed_point_bits.fft_convert_point = fft_convert_point;
+fixed_point_bits.DDS_phase_width = DDS_phase_width;
+fixed_point_bits.DDS_signal_width = DDS_signal_width;
+fixed_point_bits.DDS_signal_point = DDS_signal_point;
+fixed_point_bits.multiplier_width = multiplier_width;
+fixed_point_bits.multiplier_point = multiplier_point;
+fixed_point_bits.ca_fft_width = ca_fft_width;
+fixed_point_bits.ca_fft_point = ca_fft_point;
+fixed_point_bits.cm_convert_width = cm_convert_width;
+fixed_point_bits.cm_convert_point = cm_convert_point;
+fixed_point_bits.ifft_convert_width = ifft_convert_width;
+fixed_point_bits.ifft_convert_point = ifft_convert_point;
+fixed_point_bits.abs_multiplier_width = abs_multiplier_width;
+fixed_point_bits.abs_multiplier_point = abs_multiplier_point;
 % acquisition_debugger_data(fs,fc,fd,x,sat_num)
-[sim_final_output,sim_dds_output,sim_ddc_out,sim_fft_out,sim_cm_out,sim_ifft_out,sim_g] = acquisition_debugger_data(4.096e6,0,-2500,adc_ram_init',30);
+[sim_final_output,sim_dds_output,sim_ddc_out,sim_fft_out,sim_cm_out,sim_ifft_out,sim_g] = acquisition_debugger_data(4.096e6,0,-2500,adc_ram_init',30,fixed_point_bits);
+plot(sim_final_output);
 if exist('out','var') == 1
     a = real(sim_fft_out)'./4096*4;
     b_temp = out.simout.signals.values;
@@ -92,10 +109,8 @@ if exist('out','var') == 1
     max_index = find(abs(c) == abs(max(c)));
     if (c(max_index) >= 0)
         max_error = max(abs(c(max_index)/a(max_index)));
-        disp("A");
     else
         max_error = max(abs(c(max_index)/b(max_index)));
-        disp("B");
     end
     X = sprintf('max_error is %f percent.',max_error*100);
     disp(X)
