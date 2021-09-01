@@ -1,4 +1,4 @@
-function [final_output,dds_output,ddc_out,fft_out,ifft_out,g] = acquisition_debugger_data(fs,fc,fd,x,sat_num)
+function [final_output,dds_output,ddc_out,fft_out,cm_out,ifft_out,g] = acquisition_debugger_data(fs,fc,fd,x,sat_num)
 
 %% timing info
 ts=1/fs;
