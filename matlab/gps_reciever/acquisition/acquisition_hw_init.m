@@ -15,8 +15,8 @@ end
 %% prepare input signal
 sim_imp_clk_ratio = 5000/4096;
 x1=[1 1j]*buffer(x,2);
-x11 = real(x1(1:2:end));% downsample to 5Mhz
-x0 = x11(1:sim_imp_clk_ratio:end);% downsample to 4096 point for 1 ms
+x11 = real(x1(1:2:end)); % downsample to 5Mhz
+x0 = x11(1:sim_imp_clk_ratio:end); % downsample to 4096 point for 1 ms
 x_in = round(x0*2^-8); % 3 bit data
 %% data capture
 fs_adc = 5e6;
@@ -33,7 +33,8 @@ adc_ram_init = quantized_input(1:4096);
 input_signal = [0:ts_adc:ts_adc*(length(quantized_input)-1); quantized_input']';
 %% FFT param
 fft_length = 4096;
-fft_scale = -log2(fft_length);
+fft_input_scale = -2;
+fft_output_scale = 2;%-log2(fft_length);
 fft_convert_width = 20;
 fft_convert_point = 8;
 %% DDC param
@@ -60,10 +61,10 @@ for i=1:37
 end
 %% correlatoin and peak detector
 cm_width = 32;
-cm_scale = -13;
 cm_convert_width = 32;
 cm_convert_point = 10;
-ifft_scale = 0;
+ifft_input_scale = -21;
+ifft_output_scale = 12;
 ifft_convert_width = 29;
 ifft_convert_point = 15;
 abs_multiplier_width = 32;
@@ -95,11 +96,11 @@ fixed_point_bits.abs_multiplier_point = abs_multiplier_point;
 [fix_final_output,fix_dds_out,fix_ddc_out,fix_fft_out,fix_cm_out,fix_ifft_out,fix_g] = acquisition_debugger_data(4.096e6,0,-2500,adc_ram_init',30,1,fixed_point_bits);
 
 if exist('out','var') == 1
-    a = real(sim_fft_out)'./4096*4;
+    a = abs(fix_ifft_out)'/2^10;
     b_temp = out.simout.signals.values;
     b_index = find(out.simout_index.signals.values~= 0);
     start_index = b_index(1);
-    b = b_temp(start_index:start_index+4095);
+    b = abs(b_temp(start_index:start_index+4095));
     c = diff(a-b);
     clc;
     close all;
