@@ -73,7 +73,7 @@ abs_adder_width = 8;
 abs_adder_point = 7;
 %% syncronization latency
 adc_addr_gen_latency = 3;
-ddc_latency = 5;
+ddc_latency = 6;
 ca_code_latency = 3;
 correlator_latency = 19;
 %% debugger data generator
