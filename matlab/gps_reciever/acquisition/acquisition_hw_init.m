@@ -2,7 +2,7 @@ close all;
 clc;
 clear;
 %%
-simulation_time = 2e-3;
+simulation_time = 40e-3;
 scope_span = 1e-5;
 %% load log data
 if isfile('../../../log_data/BladeRF_Bands-L1.int16')
