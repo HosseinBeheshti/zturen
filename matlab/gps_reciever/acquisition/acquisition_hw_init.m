@@ -65,12 +65,10 @@ cm_convert_width = 32;
 cm_convert_point = 10;
 ifft_input_scale = -21;
 ifft_output_scale = 12;
-ifft_convert_width = 29;
-ifft_convert_point = 15;
-abs_multiplier_width = 32;
-abs_multiplier_point = 15;
-abs_adder_width = 8;
-abs_adder_point = 7;
+ifft_convert_width = 22;
+ifft_convert_point = 8;
+abs_width = 32;
+abs_point = 4;
 %% syncronization latency
 adc_addr_gen_latency = 3;
 ddc_latency = 6;
@@ -89,8 +87,8 @@ fixed_point_bits.cm_convert_width = cm_convert_width;
 fixed_point_bits.cm_convert_point = cm_convert_point;
 fixed_point_bits.ifft_convert_width = ifft_convert_width;
 fixed_point_bits.ifft_convert_point = ifft_convert_point;
-fixed_point_bits.abs_multiplier_width = abs_multiplier_width;
-fixed_point_bits.abs_multiplier_point = abs_multiplier_point;
+fixed_point_bits.abs_width = abs_width;
+fixed_point_bits.abs_point = abs_point;
 % acquisition_debugger_data(fs,fc,fd,x,sat_num)
 [sim_final_output,sim_dds_out,sim_ddc_out,sim_fft_out,sim_cm_out,sim_ifft_out,sim_g] = acquisition_debugger_data(4.096e6,0,-2500,adc_ram_init',30,0,fixed_point_bits);
 [fix_final_output,fix_dds_out,fix_ddc_out,fix_fft_out,fix_cm_out,fix_ifft_out,fix_g] = acquisition_debugger_data(4.096e6,0,-2500,adc_ram_init',30,1,fixed_point_bits);

@@ -26,7 +26,7 @@ if is_fixed
     g_q = imag(g);
     cm_out = double(fi((o_i.*g_i-o_q.*g_q)+1j*(o_i.*g_q+o_q.*g_i),1,fixed_point_bits.cm_convert_width,fixed_point_bits.cm_convert_point));
     ifft_out = double(fi(ifft(cm_out,fftlength),1,fixed_point_bits.ifft_convert_width,fixed_point_bits.ifft_convert_point));
-    final_output = double(fi(real(ifft_out).^2+imag(ifft_out).^2,1,fixed_point_bits.abs_multiplier_width,fixed_point_bits.abs_multiplier_point));
+    final_output = double(fi(real(ifft_out).^2+imag(ifft_out).^2,1,fixed_point_bits.abs_width,fixed_point_bits.abs_point));
 else
     dds_output = cos(theta)+1j*sin(theta);
     ddc_out = x0i.*cos(theta)+1j*x0i.*sin(theta);
