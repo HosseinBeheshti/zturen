@@ -33,10 +33,10 @@ adc_ram_init = quantized_input(1:4096);
 input_signal = [0:ts_adc:ts_adc*(length(quantized_input)-1); quantized_input']';
 %% FFT param
 fft_length = 4096;
-fft_input_scale = -2;
+fft_input_scale = -4;
 fft_output_scale = 2;%-log2(fft_length);
-fft_convert_width = 20;
-fft_convert_point = 8;
+fft_convert_width = 8;
+fft_convert_point = 0;
 %% DDC param
 DDS_phase_width = 24;
 DDS_signal_width = 12;
@@ -45,11 +45,11 @@ f_start = -2500*sim_imp_clk_ratio;
 f_dds_change = 100;
 f_start_phase = core_upsample_ratio*f_start/fs;
 fd_phase_increment = core_upsample_ratio*(f_dds_change)/fs;
-multiplier_width = 14;
-multiplier_point = 11;
+multiplier_width = 8;
+multiplier_point = 3;
 %% CA code
-ca_fft_width = 14;
-ca_fft_point = 3;
+ca_fft_width = 8;
+ca_fft_point = 1;
 ca_fft_coef = zeros(37,4096);
 for i=1:37
     g0 = cacode(i,(4.096e6*1e-3)/1023);
@@ -60,15 +60,15 @@ for i=1:37
     ca_fft_coef(i,:) = bitconcat(g_i,g_q);
 end
 %% correlatoin and peak detector
-cm_width = 32;
-cm_convert_width = 32;
-cm_convert_point = 10;
-ifft_input_scale = -21;
-ifft_output_scale = 12;
-ifft_convert_width = 22;
-ifft_convert_point = 8;
-abs_width = 32;
-abs_point = 4;
+cm_width = 8;
+cm_convert_width = 14;
+cm_convert_point = 0;
+ifft_input_scale = -13;
+ifft_output_scale = 8;
+ifft_convert_width = 12;
+ifft_convert_point = 0;
+abs_width = 16;
+abs_point = 0;
 %% syncronization latency
 adc_addr_gen_latency = 3;
 ddc_latency = 6;
@@ -134,5 +134,15 @@ else
     hold off;
 end
 
-
-
+%%
+% % [m0,n0] = max(a);
+% % P_n = mean(a([1:n0-5,n0+5:end]));
+% % [m1,n1] = max(b);
+% % P_nb = mean(b([1:n1-5,n1+5:end]));
+% % snr_a = db(m0/P_n)
+% % snr_b = db(m1/P_nb)
+% % figure;
+% % close all;
+% % hold on;
+% % plot(a./m0);
+% % plot(b./m1);
